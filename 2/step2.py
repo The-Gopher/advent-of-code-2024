@@ -16,7 +16,7 @@ def nwise(iterable, window_size=2, min_item_count=2):
 
 def is_monotonic(nums: List[int]) -> bool:
     first = nums[0]
-    for a, b in pairwise(nums[1:]):
+    for a, b in nwise(nums[1:]):
         if first <= a <= b:
             continue
         if first >= a >= b:
@@ -26,7 +26,7 @@ def is_monotonic(nums: List[int]) -> bool:
 
 
 def differ_by_1_to_3(nums: List[int]) -> bool:
-    for a, b in pairwise(nums):
+    for a, b in nwise(nums):
         if abs(b - a) not in (1, 2, 3):
             return False
     return True
