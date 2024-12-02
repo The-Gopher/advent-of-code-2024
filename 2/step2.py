@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import List
-from itertools import pairwise
 
 
 def nwise(iterable, window_size=2, min_item_count=2):
@@ -30,10 +29,6 @@ def differ_by_1_to_3(nums: List[int]) -> bool:
         if abs(b - a) not in (1, 2, 3):
             return False
     return True
-
-
-def line_to_num_array(line: str) -> List[int]:
-    return [int(x) for x in line.split()]
 
 
 def line_is_safe(line: str) -> bool:
