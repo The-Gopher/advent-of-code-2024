@@ -1,4 +1,4 @@
-from re import findall
+from re import findall, MULTILINE
 from typing import List, Tuple
 from pathlib import Path
 
@@ -7,7 +7,7 @@ DOES_REGEX = r"""(^|do\(\)|don\'t\(\))(.+?)(?=$|do\(\)|don\'t\(\))"""
 
 
 def find_dos(string) -> List[str]:
-    return [b for a, b in findall(DOES_REGEX, string) if a in ("", "do()")]
+    return [b for a, b in findall(DOES_REGEX, string, MULTILINE) if a in ("", "do()")]
 
 
 def find_sections(string) -> List[str]:
