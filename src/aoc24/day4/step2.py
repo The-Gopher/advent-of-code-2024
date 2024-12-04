@@ -1,11 +1,9 @@
 from pathlib import Path
 from typing import List
 
-DIRECTIONS = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
 
 
 def main():
-    search_text = "XMAS"
     file = Path(__file__).parent / "input"
     file_content: List[str] = file.read_text().splitlines()
 
@@ -18,18 +16,20 @@ def main():
 
         return file_content[y][x]
 
-    def matches(x, y, direction) -> bool:
-        for i, c in enumerate(search_text):
-            if get_character(x + direction[0] * i, y + direction[1] * i) != c:
-                return False
+    def matches(x, y) -> bool:
+        if {get_character(x + 1, y + 1), get_character(x - 1, y - 1)} != {"M", "S"}:
+            return False
+        if {get_character(x + 1, y - 1), get_character(x - 1, y + 1)} != {"M", "S"}:
+            return False
         return True
 
     total = 0
     for y in range(len(file_content)):
         for x in range(len(file_content[y])):
-            for direction in DIRECTIONS:
-                if matches(x, y, direction):
+            if get_character(x, y) == "A":
+                if matches(x, y):
                     total += 1
+                pass
 
     print(total)
 
