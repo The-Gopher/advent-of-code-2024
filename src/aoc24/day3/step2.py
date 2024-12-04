@@ -1,17 +1,18 @@
 from re import findall, MULTILINE
 from typing import List, Tuple
 from pathlib import Path
+from pprint import pprint
 
 MUL_REGEX = r"mul\((\d{1,3}),(\d{1,3})\)"
-DOES_REGEX = r"""(^|do\(\)|don\'t\(\))(.+?)(?=$|do\(\)|don\'t\(\))"""
+DOES_REGEX = r"(^|do\(\)|don\'t\(\))(.+?)(?=$|do\(\)|don\'t\(\))"
 
 
 def find_dos(string) -> List[str]:
-    return [b for a, b in findall(DOES_REGEX, string, MULTILINE) if a in ("", "do()")]
+    return [b for a, b in find_sections(string) if a in ("", "do()")]
 
 
 def find_sections(string) -> List[str]:
-    return findall(DOES_REGEX, string)
+    return findall(DOES_REGEX, string, MULTILINE)
 
 
 def find_multiplications(string) -> List[Tuple[int, int]]:
@@ -20,7 +21,11 @@ def find_multiplications(string) -> List[Tuple[int, int]]:
 
 def main():
     input_file = Path(__file__).parent / "input"
-    does = find_dos(input_file.read_text())
+    does = find_dos(input_file.read_text().replace("\n", "\\n"))
+
+    for do in does:
+        print(do)
+
     multiplications = [
         (a * b) for do_section in does for a, b in find_multiplications(do_section)
     ]

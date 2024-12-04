@@ -39,6 +39,14 @@ def test_find_does():
     ]
 
 
+def test_find_does_error1():
+    test_string = ",what(936,615)*:who()[[[~:mul(364,505)~;&{-*mul(431,254))  select(){}#*+]mul(617,948)$mul(117,664){) &why()<,why()mul(271,823)what(674,989);/~{'+[mul(311,405),-!mul(651,968)$?;[from()+  {mul(595,193)*}]what()^mul(250,791)!mul(114,297))]$from()from(573,794)how()why()how()mul(130,657)how()select(){what()mul(676,119)>{~@{%why(105,423)mul(307,665)&mul(757,115)/'*{};:mul(800,484),[:(,+why()~mul(679,186)]#where()'~where() do()"
+
+    sections = find_sections(test_string)
+    assert len(sections) == 1
+    assert len(find_dos(test_string)) == 1
+
+
 def test_step2():
     does = find_dos(EXAMPLE_STRING)
     multiplications = [
