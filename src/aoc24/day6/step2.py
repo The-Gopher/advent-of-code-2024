@@ -41,7 +41,7 @@ def step(map: list[str], x: int, y: int, dir: int) -> tuple[int, int, int]:
     dx, dy = DIRECTIONS[dir].x, DIRECTIONS[dir].y
     next_x, next_y = x + dx, y + dy
     if not in_map(map, next_x, next_y):
-        return (-1, -1, 1)
+        return (next_x, next_y, dir)
 
     next_spot: str = map[y + dy][x + dx]
 
