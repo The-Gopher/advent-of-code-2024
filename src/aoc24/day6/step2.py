@@ -73,9 +73,20 @@ def loops_back(map: list[str], start: tuple[int, int], start_dir: int) -> bool:
     return False
 
 
+def copy_map_with_new_object(map: list[str], new_x: int, new_y: int) -> list[str]:
+    def process_line(line: str, y: int) -> str:
+        if y != new_y:
+            return line
+        return line[:new_x] + "#" + line[new_x + 1 :]
+
+    ret = [process_line(line, y) for y, line in enumerate(map)]
+
+    return ret
+
+
 def main():
     input_file = Path(__file__).parent / "input"
-    input_file = Path(__file__).parent / "example"
+    # input_file = Path(__file__).parent / "example"
 
     map = input_file.read_text().splitlines()
 
@@ -93,7 +104,7 @@ def main():
         dx, dy = DIRECTIONS[dir].x, DIRECTIONS[dir].y
         next_x, next_y = x + dx, y + dy
         if (next_x, next_y) not in path and in_map(map, next_x, next_y):
-            if loops_back(map, (x, y), dir):
+            if loops_back(copy_map_with_new_object(map, next_x, next_y), (x, y), dir):
                 loops.append((next_x, next_y))
 
         path.append((x, y))
