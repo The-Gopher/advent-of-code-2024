@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import List, Literal
 from itertools import count, pairwise
 from collections import Counter
+from xmlrpc.client import Boolean
 
 
 def pairwise_test(
@@ -29,50 +30,17 @@ def pairwise_comparisons_safe(
     return False
 
 
-def dapended_pairwise_comparisons_safe(
-    comparisons: List[tuple[Literal["U"] | Literal["E"] | Literal["D"], int]],
-) -> bool:
-    if len({dir for dir, _ in comparisons}) == 1 and all(
-        0 < diff < 4 for _, diff in comparisons
-    ):
+def safe_reading(reading: List[int]) -> bool:
+    pairwise_comparisons = [pairwise_test(a, b) for a, b in pairwise(reading)]
+    if pairwise_comparisons_safe(pairwise_comparisons):
         return True
 
-    minus_first = comparisons[1:]
-    if len({dir for dir, _ in minus_first}) == 1 and all(
-        0 < diff < 4 for _, diff in minus_first
-    ):
-        return True
-
-    minus_last = comparisons[:-1]
-    if len({dir for dir, _ in minus_last}) == 1 and all(
-        0 < diff < 4 for _, diff in minus_last
-    ):
-        return True
-
-    if len({dir for dir, _ in comparisons}) == 1:
-        # Monotonic and first and last are not the problems elements so this cannnot be fixed based on dropping an element
-        return False
-
-    dir_counts = Counter(dir for dir, _ in comparisons)
-    if len(dir_counts) > 2 and dir_counts.most_common(2)[1][1] > 1:
-        # Two out of direction so this cannot be fixed by dropping a single element
-        return False
-
-    most_common_dir, _ = dir_counts.most_common(1)[0]
-    if most_common_dir == "E":
-        return False
-
-    to_remove = []
-    for a, b in pairwise(comparisons):
-        dir_a, diff_a = a
-        dir_b, diff_b = b
-
-        if most_common_dir != dir_b and abs(diff_a - diff_b) < 3:
-            to_remove.append(a)
-
-    if len(to_remove) == 1:
-        return True
-
+    for i in range(len(reading)):
+        pairwise_comparisons = [
+            pairwise_test(a, b) for a, b in pairwise(reading[:i] + reading[i + 1 :])
+        ]
+        if pairwise_comparisons_safe(pairwise_comparisons):
+            return True
     return False
 
 
@@ -84,17 +52,7 @@ def main():
         [int(x) for x in line.split(" ")] for line in file.read_text().splitlines()
     ]
 
-    print(
-        len(
-            [
-                x
-                for x in readings
-                if dapended_pairwise_comparisons_safe(
-                    [pairwise_test(a, b) for a, b in pairwise(x)]
-                )
-            ]
-        )
-    )
+    print(len([x for x in readings if safe_reading(x)]))
 
 
 if __name__ == "__main__":
