@@ -89,7 +89,7 @@ def main():
             [
                 x
                 for x in readings
-                if pairwise_comparisons_safe(
+                if dapended_pairwise_comparisons_safe(
                     [pairwise_test(a, b) for a, b in pairwise(x)]
                 )
             ]
