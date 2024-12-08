@@ -1,51 +1,37 @@
 from pathlib import Path
-from typing import List
-from utils import nwise
-
-def is_monotonic(nums: List[int]) -> bool:
-    first = nums[0]
-    for a, b in nwise(nums[1:]):
-        if first <= a <= b:
-            continue
-        if first >= a >= b:
-            continue
-        return False
-    return True
+from typing import List, Literal
+from itertools import pairwise
 
 
-def differ_by_1_to_3(nums: List[int]) -> bool:
-    for a, b in nwise(nums):
-        if abs(b - a) not in (1, 2, 3):
-            return False
-    return True
+def pairwise_test(a: int, b: int) -> tuple[Literal["U"] | Literal["D"], int]:
+    return ("U" if a < b else "D", abs(a - b))
 
 
-def line_dampended_safe(line_nums: List[int]) -> bool:
-    for a, b, c in nwise(line_nums, 3, 3):
-
-        if a == b == c:
-            return False
-    if not is_monotonic(line_nums):
-        return False
-    if not differ_by_1_to_3(line_nums):
-        return False
-    return True
-
-
-def line_is_safe(line: str) -> bool:
-    line_nums = [int(x) for x in line.split()]
-    if is_monotonic(line_nums) and differ_by_1_to_3(line_nums):
+def pairwise_comparisons_safe(
+    comparisons: List[tuple[Literal["U"] | Literal["D"], int]],
+) -> bool:
+    if len({dir for dir, _ in comparisons}) == 1 and all(
+        0 < diff < 4 for _, diff in comparisons
+    ):
         return True
-    if line_dampended_safe(line_nums):
-        return True
+
     return False
 
 
 def main():
     file = Path(__file__).parent / "input"
+    file = Path(__file__).parent / "example"
 
-    count = len(list(filter(line_is_safe, file.read_text().splitlines())))
-    print("Count: ", count)
+    readings = [
+        [int(x) for x in line.split(" ")] for line in file.read_text().splitlines()
+    ]
+
+    pairwise_comparisons = [
+        [pairwise_test(a, b) for a, b in pairwise(reading)] for reading in readings
+    ]
+
+    for comparisons in pairwise_comparisons:
+        print(pairwise_comparisons_safe(comparisons))
 
 
 if __name__ == "__main__":
