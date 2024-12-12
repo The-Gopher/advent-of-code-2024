@@ -43,9 +43,7 @@ def main():
                 new_p = (p[0] + dir[0], p[1] + dir[1])
                 if new_p in data and data[new_p] == p_v:
                     group_points.append(new_p)
-
-                    p = new_p
-                    data.pop(p)
+                    data.pop(new_p)
 
             i += 1
         area = len(group_points)
