@@ -1,3 +1,4 @@
+from itertools import pairwise, tee
 from pathlib import Path
 from typing import List, Tuple, Dict
 
@@ -12,37 +13,30 @@ def split_into_groups(data: List[str]) -> Dict[Tuple[int, int], str]:
     return ret
 
 
-def remove_if_in(in_set, value) -> bool:
-    if value in in_set:
-        in_set.remove(value)
-        return True
-    return False
+def pairwise_wrap(iterable):
+    first_iter, main_iter = tee(iterable, 2)
+    first = next(first_iter)
+
+    for a, b in pairwise(main_iter):
+        yield a, b
+    yield b, first
 
 
 def get_perimter(points: List[Tuple[int, int]]) -> int:
-    perimeter = 0
-    x = {
-        (d, p)
-        for p in points
-        for d in DIRECTIONS
-        if (p[0] + d[0], p[1] + d[1]) not in points
-    }
-
-    while x:
-        perimeter += 1
-        d, p = x.pop()
-
-        d_right = (d[1], -d[0])
-        idx = 1
-        while remove_if_in(x, (d, (p[0] + d_right[0] * idx, p[1] + d_right[1] * idx))):
-            idx += 1
-
-        d_left = (-d[1], d[0])
-        idx = 1
-        while remove_if_in(x, (d, (p[0] + d_left[0] * idx, p[1] + d_left[1] * idx))):
-            idx += 1
-
-    return perimeter
+    point_set = set(points)
+    corner = 0
+    for p in point_set:
+        for a, b in pairwise_wrap(DIRECTIONS):
+            p_a = (p[0] + a[0], p[1] + a[1])
+            p_b = (p[0] + b[0], p[1] + b[1])
+            p_ab = (p[0] + a[0] + b[0], p[1] + a[1] + b[1])
+            # Convex corner
+            if p_a not in point_set and p_b not in point_set:
+                corner += 1
+            # Concave corner
+            if p_a in point_set and p_b in point_set and p_ab not in point_set:
+                corner += 1
+    return corner
 
 
 def main():
