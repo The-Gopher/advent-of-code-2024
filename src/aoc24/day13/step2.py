@@ -40,13 +40,23 @@ def main():
 
         b = num // den
         if num % den != 0:
+            # print("Not Found", num, den, num // den, num % den)
             continue
-
-        print(ax, ay, bx, by, px, py, num, den, b)
 
         a = (px - b * bx) // ax
 
-        total += 3 * a + b
+        if a * ax + b * bx == px and a * ay + b * by == py:
+            total += 3 * a + b
+        else:
+            print(
+                "-- Not Found --",
+                num,
+                den,
+                num // den,
+                num % den,
+                px - a * ax - b * bx,
+                py - a * ay - b * by,
+            )
 
     assert total != 77779103984288
     print("total", total)
