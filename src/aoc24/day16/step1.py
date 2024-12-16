@@ -87,8 +87,13 @@ def main():
             new_score = score_path(new_path)
             if (new_pos in min_map) and (new_score >= min_map[new_pos]):
                 continue
-            
-            heap = [h for h in heap if h[1] != new_pos]
+
+            min_map[new_pos] = new_score
+
+            # Attempt 1
+            if new_score >= 106516:
+                continue
+
             heapq.heappush(heap, (new_score, new_pos, d, new_path))
 
 
