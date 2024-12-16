@@ -1,12 +1,7 @@
-import enum
-from itertools import pairwise, tee
+from itertools import pairwise, chain
 from pathlib import Path
-from turtle import pos, position, width
-from typing import List, Tuple, Dict, Set
-import re
-from collections import Counter
-from dataclasses import dataclass
-from colorama import Fore, Back, Style
+from typing import List, Tuple, Dict
+from colorama import Fore, Style
 import heapq
 
 DIRECTIONS = [(0, 1), (1, 0), (0, -1), (-1, 0)]
@@ -37,16 +32,23 @@ def draw(maze: List[str], path: List[Tuple[int, int]]):
 
 
 def score_path(path: List[Tuple[int, int]]) -> int:
-    return len(path) + sum(
-        1000
-        for a, b in pairwise((a[0] - b[0], a[1] - b[1]) for a, b in pairwise(path))
-        if a != b
+    return (
+        len(path)
+        - 1
+        + sum(
+            1000
+            for a, b in pairwise(
+                chain([(1, 0)], ((b[0] - a[0], b[1] - a[1]) for a, b in pairwise(path)))
+            )
+            if a != b
+        )
     )
 
 
 def main():
-    file = Path(__file__).parent / "input"
-    # file = Path(__file__).parent / "example"
+    file, expected = Path(__file__).parent / "input", None
+    # file, expected = Path(__file__).parent / "example", 7036
+    # file, expected = Path(__file__).parent / "example_2", 11048
 
     maze = file.read_text().splitlines()
 
@@ -56,14 +58,14 @@ def main():
     if start is None or end is None:
         raise ValueError("Start or end not found")
 
-    heap: List[Tuple[int, Tuple[int, int], Tuple[int, int], List[Tuple[int, int]]]] = [
-        (0, start, (0, 1), [])
+    heap: List[Tuple[int, Tuple[int, int], List[Tuple[int, int]]]] = [
+        (0, start, [start])
     ]
     min_map: Dict[Tuple[int, int], int] = {}
 
     i = 0
     while True:
-        score, pos, last_dir, path = heapq.heappop(heap)
+        score, pos, path = heapq.heappop(heap)
 
         i += 1
         if i % 10000 == 0:
@@ -76,7 +78,12 @@ def main():
                 new_path = path + [new_pos]
 
                 draw(maze, new_path)
-                print("Found", score_path(new_path) + 1000)
+                if expected is not None:
+                    assert score_path(new_path) == expected, (
+                        score_path(new_path),
+                        expected,
+                    )
+                print("Found", score_path(new_path))
                 return
             if maze[new_pos[1]][new_pos[0]] == "#":
                 continue
@@ -85,16 +92,17 @@ def main():
 
             new_path = path + [new_pos]
             new_score = score_path(new_path)
+
             if (new_pos in min_map) and (new_score >= min_map[new_pos]):
                 continue
 
             min_map[new_pos] = new_score
 
-            # Attempt 1
-            if new_score >= 106516:
+            # Attempt 2
+            if new_score >= 105512:
                 continue
 
-            heapq.heappush(heap, (new_score, new_pos, d, new_path))
+            heapq.heappush(heap, (new_score, new_pos, new_path))
 
 
 if __name__ == "__main__":
