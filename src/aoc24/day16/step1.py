@@ -1,6 +1,6 @@
 from itertools import pairwise, chain
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Set
 from colorama import Fore, Style
 import heapq
 
@@ -21,7 +21,7 @@ def find_point(maze: List[str], point: str) -> Tuple[int, int] | None:
     return None
 
 
-def draw(maze: List[str], path: List[Tuple[int, int]]):
+def draw(maze: List[str], path: Set[Tuple[int, int]]):
     for y, line in enumerate(maze):
         for x, c in enumerate(line):
             if (x, y) in path:
@@ -47,8 +47,8 @@ def score_path(path: List[Tuple[int, int]]) -> int:
 
 def main():
     file, expected = Path(__file__).parent / "input", None
-    # file, expected = Path(__file__).parent / "example", 7036
     # file, expected = Path(__file__).parent / "example_2", 11048
+    # file, expected = Path(__file__).parent / "example", 7036
 
     maze = file.read_text().splitlines()
 
@@ -61,26 +61,22 @@ def main():
     heap: List[Tuple[int, Tuple[int, int], List[Tuple[int, int]]]] = [
         (0, start, [start])
     ]
+
     min_map: Dict[Tuple[Tuple[int, int], Tuple[int, int]], int] = {}
 
-    i = 0
+    best_paths: List[List[Tuple[int, int]]] = []
+    best_score = None
+
     while True:
         score, pos, path = heapq.heappop(heap)
 
-        i += 1
-        if i % 10000 == 0:
-            print(i, score, len(heap))
-            # draw(maze, path)
+        if best_score and score > best_score:
+            break
 
         if pos == end:
-            draw(maze, path)
-            if expected is not None:
-                assert score_path(path) == expected, (
-                    score_path(path),
-                    expected,
-                )
-            print("Found", score_path(path))
-            return
+            assert score == score_path(path)
+            best_score = score
+            best_paths.append(path)
 
         for d in DIRECTIONS:
             new_pos = (pos[0] + d[0], pos[1] + d[1])
@@ -93,16 +89,14 @@ def main():
             new_score = score_path(new_path)
 
             key = (new_pos, d)
-            if (key in min_map) and (new_score >= min_map[key]):
+            if (key in min_map) and (new_score > min_map[key]):
                 continue
-
             min_map[key] = new_score
 
-            # Attempt 2
-            # if new_score >= 105512:
-            #    continue
-
             heapq.heappush(heap, (new_score, new_pos, new_path))
+
+    print(best_score)
+    print(len(set(tile for path in best_paths for tile in path)))
 
 
 if __name__ == "__main__":
