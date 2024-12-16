@@ -37,12 +37,11 @@ def draw(maze: List[str], path: List[Tuple[int, int]]):
 
 
 def score_path(path: List[Tuple[int, int]]) -> int:
-    turn_score = sum(
+    return len(path) + sum(
         1000
         for a, b in pairwise((a[0] - b[0], a[1] - b[1]) for a, b in pairwise(path))
         if a != b
     )
-    return len(path) + turn_score
 
 
 def main():
@@ -60,6 +59,7 @@ def main():
     heap: List[Tuple[int, Tuple[int, int], Tuple[int, int], List[Tuple[int, int]]]] = [
         (0, start, (0, 1), [])
     ]
+    min_map: Dict[Tuple[int, int], int] = {}
 
     i = 0
     while True:
@@ -67,8 +67,8 @@ def main():
 
         i += 1
         if i % 10000 == 0:
-            print(i, score)
-            draw(maze, path)
+            print(i, score, len(heap))
+            # draw(maze, path)
 
         for d in DIRECTIONS:
             new_pos = (pos[0] + d[0], pos[1] + d[1])
@@ -84,11 +84,11 @@ def main():
                 continue
 
             new_path = path + [new_pos]
-            new_score = (
-                score_path(new_path)
-                + abs(new_pos[0] - end[0])
-                + abs(new_pos[1] - end[1])
-            )
+            new_score = score_path(new_path)
+            if (new_pos in min_map) and (new_score >= min_map[new_pos]):
+                continue
+            
+            heap = [h for h in heap if h[1] != new_pos]
             heapq.heappush(heap, (new_score, new_pos, d, new_path))
 
 
